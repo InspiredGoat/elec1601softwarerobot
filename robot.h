@@ -2,10 +2,11 @@
 #define ROBOT_H_INCLUDED
 
 
-#include "stdio.h"
-#include "stdlib.h"
-#include "sdl.h"
-#include "SDL2_gfxPrimitives.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
+
 #include "formulas.h"
 #include "time.h"
 #include "wall.h"
@@ -35,3 +36,4 @@ void robotMotorMove(struct Robot * robot);
 void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_right_sensor);
 
 #endif // ROBOT_H_INCLUDED
+

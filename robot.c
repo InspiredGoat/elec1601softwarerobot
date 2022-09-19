@@ -95,8 +95,8 @@ int checkRobotSensorFrontRightAllWalls(struct Robot * robot, struct Wall_collect
     for (i = 0; i < 5; i++)
     {
         ptr = head_store;
-        xDir = round(robotCentreX+(ROBOT_WIDTH/2-2)*cos((robot->angle)*PI/180)-(-ROBOT_HEIGHT/2-SENSOR_VISION+sensorSensitivityLength*i)*sin((robot->angle)*PI/180));
-        yDir = round(robotCentreY+(ROBOT_WIDTH/2-2)*sin((robot->angle)*PI/180)+(-ROBOT_HEIGHT/2-SENSOR_VISION+sensorSensitivityLength*i)*cos((robot->angle)*PI/180));
+        xDir = round(robotCentreX-(ROBOT_WIDTH/2-2)*cos((robot->angle + 90)*PI/180)-(-ROBOT_HEIGHT/2-SENSOR_VISION+sensorSensitivityLength*i)*sin((robot->angle + 90)*PI/180));
+        yDir = round(robotCentreY-(ROBOT_WIDTH/2-2)*sin((robot->angle + 90)*PI/180)+(-ROBOT_HEIGHT/2-SENSOR_VISION+sensorSensitivityLength*i)*cos((robot->angle + 90)*PI/180));
         xTL = (int) xDir;
         yTL = (int) yDir;
         hit = 0;
@@ -194,8 +194,7 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
     yTL = (int) yDir;
 
     SDL_RenderDrawLine(renderer,xTR, yTR, xBR, yBR);
-    SDL_RenderDrawLine(renderer,xBR, yBR, xBL, yBL);
-    SDL_RenderDrawLine(renderer,xBL, yBL, xTL, yTL);
+    SDL_RenderDrawLine(renderer,xBR, yBR, xBL, yBL); SDL_RenderDrawLine(renderer,xBL, yBL, xTL, yTL);
     SDL_RenderDrawLine(renderer,xTL, yTL, xTR, yTR);
 
     //Front Right Sensor
@@ -203,8 +202,8 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
     int i;
     for (i = 0; i < 5; i++)
     {
-        xDir = round(robotCentreX+(ROBOT_WIDTH/2-2)*cos((robot->angle)*PI/180)-(-ROBOT_HEIGHT/2-SENSOR_VISION+sensor_sensitivity*i)*sin((robot->angle)*PI/180));
-        yDir = round(robotCentreY+(ROBOT_WIDTH/2-2)*sin((robot->angle)*PI/180)+(-ROBOT_HEIGHT/2-SENSOR_VISION+sensor_sensitivity*i)*cos((robot->angle)*PI/180));
+        xDir = round(robotCentreX-(ROBOT_WIDTH/2-2)*cos((robot->angle + 90)*PI/180)-(-ROBOT_HEIGHT/2-SENSOR_VISION+sensor_sensitivity*i)*sin((robot->angle + 90)*PI/180));
+        yDir = round(robotCentreY-(ROBOT_WIDTH/2-2)*sin((robot->angle + 90)*PI/180)+(-ROBOT_HEIGHT/2-SENSOR_VISION+sensor_sensitivity*i)*cos((robot->angle + 90)*PI/180));
         xTL = (int) xDir;
         yTL = (int) yDir;
 
@@ -266,21 +265,63 @@ void robotMotorMove(struct Robot * robot) {
 }
 
 void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_right_sensor) {
+	static char dive_bombing = 0;
+	static char dive_bomb_ticks = 0;
+	static char turning_left = 0;
+#define ROTATIONS_90DEG	6
+#define ROTATIONS_180DEG 12
+	static char left_turn_frames = ROTATIONS_90DEG;
+	static unsigned int ticks = 0;
 
-    if ((front_left_sensor == 0) && (front_right_sensor == 0)) {
-        if (robot->currentSpeed<2)
-            robot->direction = UP;
-    }
-    else if ((robot->currentSpeed>0) && ((front_left_sensor == 1) || (front_right_sensor == 1)) ) {
-        robot->direction = DOWN;
-    }
-    else if ((robot->currentSpeed==0) && ((front_left_sensor == 1) || (front_right_sensor == 1)) ) {
-        robot->direction = LEFT;
-    }
-    else if ((robot->currentSpeed==0) && ((front_left_sensor == 1) || (front_right_sensor == 0)) ) {
-        robot->direction = RIGHT;
-    }
-    else if ((robot->currentSpeed==0) && ((front_left_sensor == 0) || (front_right_sensor == 1)) ) {
-        robot->direction = RIGHT;
-    }
+	if (ticks <= 4)
+		robot->direction = UP;
+	else {
+		// if turning left, finish turning left
+		if (left_turn_frames == 0 && turning_left) {
+			turning_left = 0;
+			left_turn_frames = ROTATIONS_90DEG;
+			// speed back up
+			robot->direction = UP;
+		}
+		else if (turning_left && left_turn_frames > 0) {
+			robot->direction = LEFT;
+			left_turn_frames --;
+		}
+
+		// if not turning left check sensors
+		else if (front_left_sensor >= 1) {
+			robot->direction = DOWN;
+			turning_left = 1;
+		}
+		// emergency right
+		else if (front_right_sensor >= 3) {
+			robot->direction = LEFT;
+		}
+
+		else if (!dive_bombing && dive_bomb_ticks > 0) {
+			robot->direction = LEFT;
+			dive_bomb_ticks --;
+		}
+		else if (dive_bombing) {
+			if (front_right_sensor > 0) {
+				dive_bombing = 0;
+				robot->direction = LEFT;
+				dive_bomb_ticks %= 3;
+				dive_bomb_ticks --;
+			}
+			else {
+				if (dive_bomb_ticks % 3 == 0)
+					robot->direction = RIGHT;
+				dive_bomb_ticks++;
+			}
+		}
+
+		else if (front_right_sensor == 0 && !dive_bombing) {
+			robot->direction = RIGHT;
+			dive_bombing = 1;
+		}
+	}
+
+	ticks++;
 }
+

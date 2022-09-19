@@ -1,9 +1,9 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "sdl.h"
-#include "SDL2_gfxPrimitives.h"
-#include "time.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
+#include "time.h"
 #include "formulas.h"
 #include "wall.h"
 #include "robot.h"
@@ -88,6 +88,9 @@ int main(int argc, char *argv[]) {
                 done = 1;
             }
             const Uint8 *state = SDL_GetKeyboardState(NULL);
+            if(state[SDL_SCANCODE_ESCAPE]){
+		    done = 1;
+            }
             if(state[SDL_SCANCODE_UP] && robot.direction != DOWN){
                 robot.direction = UP;
             }
@@ -115,3 +118,4 @@ int main(int argc, char *argv[]) {
     SDL_DestroyWindow(window);
     printf("DEAD\n");
 }
+
