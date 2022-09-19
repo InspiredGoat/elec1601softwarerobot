@@ -8,8 +8,10 @@
 #include "wall.h"
 #include "robot.h"
 
-int done = 0;
 
+#define NOISE_ENABLED
+
+int done = 0;
 
 int main(int argc, char *argv[]) {
     SDL_Window *window;
@@ -70,13 +72,8 @@ int main(int argc, char *argv[]) {
             robotCrash(&robot);
         //Otherwise compute sensor information
         else {
-            front_left_sensor = checkRobotSensorFrontLeftAllWalls(&robot, head);
-            if (front_left_sensor>0)
-                printf("Getting close on the left. Score = %d\n", front_left_sensor);
-
-            front_right_sensor = checkRobotSensorFrontRightAllWalls(&robot, head);
-            if (front_right_sensor>0)
-                printf("Getting close on the right. Score = %d\n", front_right_sensor);
+            front_left_sensor 	= checkRobotSensorFrontLeftAllWalls(&robot, head);
+            front_right_sensor 	= checkRobotSensorFrontRightAllWalls(&robot, head);
         }
         robotUpdate(renderer, &robot);
         updateAllWalls(head, renderer);

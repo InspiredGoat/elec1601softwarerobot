@@ -1,4 +1,5 @@
 #include "robot.h"
+#define NOISE_ENABLED
 
 void setup_robot(struct Robot *robot){
     robot->x = OVERALL_WINDOW_WIDTH/2-50;
@@ -244,10 +245,18 @@ void robotMotorMove(struct Robot * robot) {
                 robot->currentSpeed = -MAX_ROBOT_SPEED;
             break;
         case LEFT :
-            robot->angle = (robot->angle+360-DEFAULT_ANGLE_CHANGE)%360;
+#ifdef NOISE_ENABLED
+            robot->angle = (robot->angle+(rand()%5)-DEFAULT_ANGLE_CHANGE)%360;
+#else
+            robot->angle = (robot->angle-DEFAULT_ANGLE_CHANGE)%360;
+#endif
             break;
         case RIGHT :
+#ifdef NOISE_ENABLED
+            robot->angle = (robot->angle+(rand()%5)+DEFAULT_ANGLE_CHANGE)%360;
+#else
             robot->angle = (robot->angle+DEFAULT_ANGLE_CHANGE)%360;
+#endif
             break;
     }
     robot->direction = 0;
