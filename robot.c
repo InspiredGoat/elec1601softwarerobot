@@ -1,20 +1,24 @@
 #include "robot.h"
+#include "renderer.h"
+#include "maze.h"
 #define NOISE_ENABLED
 
 void setup_robot(struct Robot *robot){
-    robot->x = OVERALL_WINDOW_WIDTH/2-50;
-    robot->y = OVERALL_WINDOW_HEIGHT-50;
-    robot->true_x = OVERALL_WINDOW_WIDTH/2-50;
-    robot->true_y = OVERALL_WINDOW_HEIGHT-50;
-    robot->width = ROBOT_WIDTH;
-    robot->height = ROBOT_HEIGHT;
-    robot->direction = 0;
-    robot->angle = 0;
-    robot->currentSpeed = 0;
-    robot->crashed = 0;
-    robot->auto_mode = 0;
+	robot->x = MAZE_START_X * WALL_WIDTH + WALL_WIDTH / 2 - ROBOT_WIDTH / 2;
+	robot->y = MAZE_START_Y * WALL_WIDTH;
 
-    printf("Press arrow keys to move manually, or enter to move automatically\n\n");
+	robot->true_x = robot->x;
+	robot->true_y = robot->y;
+	robot->width = ROBOT_WIDTH;
+	robot->height = ROBOT_HEIGHT;
+	robot->direction = 0;
+	robot->angle = 180;
+	robot->currentSpeed = 0;
+	robot->crashed = 0;
+	robot->auto_mode = 0;
+	robot->frames_alive = 0;
+
+	printf("Press arrow keys to move manually, or enter to move automatically\n\n");
 }
 int robot_off_screen(struct Robot * robot){
     if(robot->x < 0 || robot-> y < 0){
@@ -63,7 +67,7 @@ void robotCrash(struct Robot * robot) {
 
 void robotSuccess(struct Robot * robot, int msec) {
     robot->currentSpeed = 0;
-    if (!robot->crashed){
+    if (!robot->crashed) {
         printf("Success!!!!!\n\n");
         printf("Time taken %d seconds %d milliseconds \n", msec/1000, msec%1000);
         printf("Press space to start again\n");
@@ -145,32 +149,12 @@ int checkRobotSensorFrontLeftAllWalls(struct Robot * robot, struct Wall_collecti
     return score;
 }
 
-void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
+void robotUpdate(struct Robot * robot){
     double xDir, yDir;
 
     int robotCentreX, robotCentreY, xTR, yTR, xTL, yTL, xBR, yBR, xBL, yBL;
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    setColor(100, 100, 100, 255);
 
-    /*
-    //Other Display options:
-    // The actual square which the robot is tested against (not so nice visually with turns, but easier
-    // to test overlap
-    SDL_Rect rect = {robot->x, robot->y, robot->height, robot->width};
-    SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
-    SDL_RenderDrawRect(renderer, &rect);
-    SDL_RenderFillRect(renderer, &rect);
-    */
-    /*
-    //Center Line of Robot. Line shows the direction robot is facing
-    xDir = -30 * sin(-robot->angle*PI/180);
-    yDir = -30 * cos(-robot->angle*PI/180);
-    xDirInt = robot->x+ROBOT_WIDTH/2+ (int) xDir;
-    yDirInt = robot->y+ROBOT_HEIGHT/2+ (int) yDir;
-    SDL_RenderDrawLine(renderer,robot->x+ROBOT_WIDTH/2, robot->y+ROBOT_HEIGHT/2, xDirInt, yDirInt);
-    */
-
-    //Rotating Square
-    //Vector rotation to work out corners x2 = x1cos(angle)-y1sin(angle), y2 = x1sin(angle)+y1cos(angle)
     robotCentreX = robot->x+ROBOT_WIDTH/2;
     robotCentreY = robot->y+ROBOT_HEIGHT/2;
 
@@ -194,9 +178,10 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
     xTL = (int) xDir;
     yTL = (int) yDir;
 
-    SDL_RenderDrawLine(renderer,xTR, yTR, xBR, yBR);
-    SDL_RenderDrawLine(renderer,xBR, yBR, xBL, yBL); SDL_RenderDrawLine(renderer,xBL, yBL, xTL, yTL);
-    SDL_RenderDrawLine(renderer,xTL, yTL, xTR, yTR);
+    drawLine(xTR, yTR, xBR, yBR);
+    drawLine(xBR, yBR, xBL, yBL);
+    drawLine(xBL, yBL, xTL, yTL);
+    drawLine(xTL, yTL, xTR, yTR);
 
     //Front Right Sensor
     int sensor_sensitivity =  floor(SENSOR_VISION/5);
@@ -208,10 +193,8 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
         xTL = (int) xDir;
         yTL = (int) yDir;
 
-        SDL_Rect rect = {xTL, yTL, 2, sensor_sensitivity};
-        SDL_SetRenderDrawColor(renderer, 80+(20*(5-i)), 80+(20*(5-i)), 80+(20*(5-i)), 255);
-        SDL_RenderDrawRect(renderer, &rect);
-        SDL_RenderFillRect(renderer, &rect);
+        setColor(80+(20*(5-i)), 80+(20*(5-i)), 80+(20*(5-i)), 255);
+        drawRect(xTL, yTL, 2, sensor_sensitivity);
     }
 
     //Front Left Sensor
@@ -222,10 +205,8 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
         xTL = (int) xDir;
         yTL = (int) yDir;
 
-        SDL_Rect rect = {xTL, yTL, 2, sensor_sensitivity};
-        SDL_SetRenderDrawColor(renderer, 80+(20*(5-i)), 80+(20*(5-i)), 80+(20*(5-i)), 255);
-        SDL_RenderDrawRect(renderer, &rect);
-        SDL_RenderFillRect(renderer, &rect);
+        setColor(80+(20*(5-i)), 80+(20*(5-i)), 80+(20*(5-i)), 255);
+        drawRect(xTL, yTL, 2, sensor_sensitivity);
     }
 }
 
@@ -246,14 +227,14 @@ void robotMotorMove(struct Robot * robot) {
             break;
         case LEFT :
 #ifdef NOISE_ENABLED
-            robot->angle = (robot->angle+(rand()%5)-DEFAULT_ANGLE_CHANGE)%360;
+            robot->angle = (robot->angle+(rand()%2)-DEFAULT_ANGLE_CHANGE)%360;
 #else
             robot->angle = (robot->angle-DEFAULT_ANGLE_CHANGE)%360;
 #endif
             break;
         case RIGHT :
 #ifdef NOISE_ENABLED
-            robot->angle = (robot->angle+(rand()%5)+DEFAULT_ANGLE_CHANGE)%360;
+            robot->angle = (robot->angle+(rand()%2)+DEFAULT_ANGLE_CHANGE)%360;
 #else
             robot->angle = (robot->angle+DEFAULT_ANGLE_CHANGE)%360;
 #endif
@@ -280,9 +261,8 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 #define ROTATIONS_90DEG	6
 #define ROTATIONS_180DEG 12
 	static char left_turn_frames = ROTATIONS_90DEG;
-	static unsigned int ticks = 0;
 
-	if (ticks <= 4)
+	if (robot->frames_alive <= 2)
 		robot->direction = UP;
 	else {
 		// if turning left, finish turning left
@@ -296,7 +276,6 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 			robot->direction = LEFT;
 			left_turn_frames --;
 		}
-
 		// if not turning left check sensors
 		else if (front_left_sensor >= 1) {
 			robot->direction = DOWN;
@@ -306,7 +285,6 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 		else if (front_right_sensor >= 3) {
 			robot->direction = LEFT;
 		}
-
 		else if (!dive_bombing && dive_bomb_ticks > 0) {
 			robot->direction = LEFT;
 			dive_bomb_ticks --;
@@ -324,13 +302,12 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 				dive_bomb_ticks++;
 			}
 		}
-
 		else if (front_right_sensor == 0 && !dive_bombing) {
 			robot->direction = RIGHT;
 			dive_bombing = 1;
 		}
 	}
 
-	ticks++;
+	robot->frames_alive++;
 }
 

@@ -1,6 +1,6 @@
 #include "formulas.h"
 
-int checkOverlap( int object1X, int object1width,
+int checkOverlap(   int object1X, int object1width,
                     int object1Y, int object1height,
                     int object2X, int object2width,
                     int object2Y, int object2height)
@@ -30,5 +30,4 @@ int checkOverlap( int object1X, int object1width,
     return (xOverlap && yOverlap);
 
 }
-
 

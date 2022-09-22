@@ -6,13 +6,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 
-#include "structures.h"
+#include "types.h"
 
 void wallSetPosition(struct Wall * wall, int x, int y, int width, int height);
-void wallUpdate(SDL_Renderer * renderer, struct Wall * wall);
+void wallUpdate(struct Wall * wall);
 
 void insertFirstWall(struct Wall_collection ** head, int key, struct Wall * wall);
 void insertAndSetFirstWall(struct Wall_collection ** head, int key, int x, int y, int width, int height);
-void updateAllWalls(struct Wall_collection * head, SDL_Renderer * renderer);
+void updateAllWalls(struct Wall_collection * head);
 #endif // WALL_H_INCLUDED
 

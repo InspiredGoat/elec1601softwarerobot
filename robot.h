@@ -9,6 +9,7 @@
 
 #include "formulas.h"
 #include "time.h"
+#include "types.h"
 #include "wall.h"
 #include "math.h"
 
@@ -29,7 +30,7 @@ int checkRobotSensorFrontRightAllWalls(struct Robot * robot, struct Wall_collect
 int checkRobotSensorFrontLeftAllWalls(struct Robot * robot, struct Wall_collection * head);
 
 //Visual Display
-void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot);
+void robotUpdate(struct Robot * robot);
 
 //Movement
 void robotMotorMove(struct Robot * robot);

@@ -1,3 +1,5 @@
+#include "types.h"
+#include "renderer.h"
 #include "wall.h"
 
 void wallSetPosition(struct Wall * wall, int x, int y, int width, int height) {
@@ -7,11 +9,8 @@ void wallSetPosition(struct Wall * wall, int x, int y, int width, int height) {
     wall->height = height;
 }
 
-void wallUpdate(SDL_Renderer * renderer, struct Wall * wall){
-    SDL_Rect rect = {wall->x, wall->y, wall->width, wall->height};
-    SDL_SetRenderDrawColor(renderer, 207, 99, 85, 255);
-    SDL_RenderFillRect(renderer, &rect);
-    SDL_RenderDrawRect(renderer, &rect);
+void wallUpdate(struct Wall * wall){
+	drawRect(wall->x, wall->y, wall->width, wall->height);
 }
 
 //insert link at the first location
@@ -37,14 +36,20 @@ void insertAndSetFirstWall(struct Wall_collection ** head, int key, int x, int y
 
 }
 
-void updateAllWalls(struct Wall_collection * head, SDL_Renderer * renderer) {
+void updateAllWalls(struct Wall_collection * head) {
    struct Wall_collection *ptr = head;
+   /* setColor(	255 * sin(SDL_GetTicks() / 1000.f), */
+		/* 255 * sin(SDL_GetTicks() / 1000.f), */
+		/* 255 * sin(SDL_GetTicks() / 1000.f), 255); */
 
    //start from the beginning
    while(ptr != NULL) {
       //printf("(%d)",ptr->key);
-      wallUpdate(renderer, &ptr->wall);
+	//setColor(ptr->key * 100, ptr->key + 255 * 10, 0, 255);
+	setColor(sin(SDL_GetTicks() / 1000.f) * 255, (sin(SDL_GetTicks() / 1000.f) - 1.f) * 255, 0, 255);
+      wallUpdate(&ptr->wall);
       ptr = ptr->next;
    }
 
 }
+
