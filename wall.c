@@ -1,3 +1,4 @@
+#include "settings.h"
 #include "types.h"
 #include "renderer.h"
 #include "wall.h"
@@ -37,19 +38,16 @@ void insertAndSetFirstWall(struct Wall_collection ** head, int key, int x, int y
 }
 
 void updateAllWalls(struct Wall_collection * head) {
-   struct Wall_collection *ptr = head;
-   /* setColor(	255 * sin(SDL_GetTicks() / 1000.f), */
-		/* 255 * sin(SDL_GetTicks() / 1000.f), */
-		/* 255 * sin(SDL_GetTicks() / 1000.f), 255); */
+	struct Wall_collection *ptr = head;
+	/* setColor(	255 * sin(SDL_GetTicks() / 1000.f), */
+	/* 255 * sin(SDL_GetTicks() / 1000.f), */
+	/* 255 * sin(SDL_GetTicks() / 1000.f), 255); */
 
-   //start from the beginning
-   while(ptr != NULL) {
-      //printf("(%d)",ptr->key);
-	//setColor(ptr->key * 100, ptr->key + 255 * 10, 0, 255);
-	setColor(sin(SDL_GetTicks() / 1000.f) * 255, (sin(SDL_GetTicks() / 1000.f) - 1.f) * 255, 0, 255);
-      wallUpdate(&ptr->wall);
-      ptr = ptr->next;
-   }
-
+	//start from the beginning
+	while(ptr != NULL) {
+		setColor(0, 0, 0, 255);
+		wallUpdate(&ptr->wall);
+		ptr = ptr->next;
+	}
 }
 

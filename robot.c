@@ -1,18 +1,30 @@
+#include "settings.h"
+
 #include "robot.h"
 #include "renderer.h"
 #include "maze.h"
-#define NOISE_ENABLED
 
 void setup_robot(struct Robot *robot){
+#ifdef OLD_MAZE
+	robot->x = OVERALL_WINDOW_WIDTH/2-50;
+	robot->y = OVERALL_WINDOW_HEIGHT-50;
+	robot->true_x = OVERALL_WINDOW_WIDTH/2-50;
+	robot->true_y = OVERALL_WINDOW_HEIGHT-50;
+#else
 	robot->x = MAZE_START_X * WALL_WIDTH + WALL_WIDTH / 2 - ROBOT_WIDTH / 2;
 	robot->y = MAZE_START_Y * WALL_WIDTH;
-
 	robot->true_x = robot->x;
 	robot->true_y = robot->y;
+#endif
+
 	robot->width = ROBOT_WIDTH;
 	robot->height = ROBOT_HEIGHT;
 	robot->direction = 0;
+#ifdef OLD_MAZE
+	robot->angle = 0;
+#else
 	robot->angle = 180;
+#endif
 	robot->currentSpeed = 0;
 	robot->crashed = 0;
 	robot->auto_mode = 0;
@@ -20,14 +32,14 @@ void setup_robot(struct Robot *robot){
 
 	printf("Press arrow keys to move manually, or enter to move automatically\n\n");
 }
-int robot_off_screen(struct Robot * robot){
-    if(robot->x < 0 || robot-> y < 0){
-        return 0;
-    }
-    if(robot->x > OVERALL_WINDOW_WIDTH || robot->y > OVERALL_WINDOW_HEIGHT){
-        return 0;
-    }
-    return 1;
+int robot_off_screen(struct Robot * robot) {
+	if(robot->x < 0 || robot-> y < 0){
+		return 0;
+	}
+	if(robot->x > OVERALL_WINDOW_WIDTH || robot->y > OVERALL_WINDOW_HEIGHT){
+		return 0;
+	}
+	return 1;
 }
 
 int checkRobotHitWall(struct Robot * robot, struct Wall * wall) {
@@ -262,7 +274,7 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 #define ROTATIONS_180DEG 12
 	static char left_turn_frames = ROTATIONS_90DEG;
 
-	if (robot->frames_alive <= 2)
+	if (robot->frames_alive <= 3)
 		robot->direction = UP;
 	else {
 		// if turning left, finish turning left

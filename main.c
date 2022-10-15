@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "renderer_internal.h"
+
+#include "settings.h"
 
 #include "maze.h"
 #include "time.h"
@@ -8,14 +11,12 @@
 #include "wall.h"
 #include "robot.h"
 
-
-#define NOISE_ENABLED
-
 int done = 0;
 
 int main(int argc, char *argv[]) {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
+
 
 	if(SDL_Init(SDL_INIT_VIDEO) < 0){
 		return 1;
@@ -37,6 +38,20 @@ int main(int argc, char *argv[]) {
 	// Relative positions are used (OVERALL_WINDOW_WIDTH and OVERALL_WINDOW_HEIGHT)
 	// But you can use absolute positions. 10 is used as the width, but you can change this.
 
+#ifdef OLD_MAZE
+    insertAndSetFirstWall(&head, 1,  OVERALL_WINDOW_WIDTH/2, OVERALL_WINDOW_HEIGHT/2, 10, OVERALL_WINDOW_HEIGHT/2);
+    insertAndSetFirstWall(&head, 2,  OVERALL_WINDOW_WIDTH/2-100, OVERALL_WINDOW_HEIGHT/2+100, 10, OVERALL_WINDOW_HEIGHT/2-100);
+    insertAndSetFirstWall(&head, 3,  OVERALL_WINDOW_WIDTH/2-250, OVERALL_WINDOW_HEIGHT/2+100, 150, 10);
+    insertAndSetFirstWall(&head, 4,  OVERALL_WINDOW_WIDTH/2-150, OVERALL_WINDOW_HEIGHT/2, 150, 10);
+    insertAndSetFirstWall(&head, 5,  OVERALL_WINDOW_WIDTH/2-250, OVERALL_WINDOW_HEIGHT/2-200, 10, 300);
+    insertAndSetFirstWall(&head, 6,  OVERALL_WINDOW_WIDTH/2-150, OVERALL_WINDOW_HEIGHT/2-100, 10, 100);
+    insertAndSetFirstWall(&head, 7,  OVERALL_WINDOW_WIDTH/2-250, OVERALL_WINDOW_HEIGHT/2-200, 450, 10);
+    insertAndSetFirstWall(&head, 8,  OVERALL_WINDOW_WIDTH/2-150, OVERALL_WINDOW_HEIGHT/2-100, 250, 10);
+    insertAndSetFirstWall(&head, 9,  OVERALL_WINDOW_WIDTH/2+200, OVERALL_WINDOW_HEIGHT/2-200, 10, 300);
+    insertAndSetFirstWall(&head, 10,  OVERALL_WINDOW_WIDTH/2+100, OVERALL_WINDOW_HEIGHT/2-100, 10, 300);
+    insertAndSetFirstWall(&head, 11,  OVERALL_WINDOW_WIDTH/2+100, OVERALL_WINDOW_HEIGHT/2+200, OVERALL_WINDOW_WIDTH/2-100, 10);
+    insertAndSetFirstWall(&head, 12,  OVERALL_WINDOW_WIDTH/2+200, OVERALL_WINDOW_HEIGHT/2+100, OVERALL_WINDOW_WIDTH/2-100, 10);
+#else
 	int key = 0;
 	for (int x = 0; x < MAZE_WIDTH; x++)
 		for (int y = 0; y < MAZE_HEIGHT; y++) {
@@ -52,7 +67,7 @@ int main(int argc, char *argv[]) {
 				key++;
 			}
 		}
-
+#endif
 
 	setup_robot(&robot);
 	updateAllWalls(head);
@@ -62,7 +77,7 @@ int main(int argc, char *argv[]) {
 
 	SDL_Event event;
 	while(!done){
-		SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+		SDL_SetRenderDrawColor(renderer, 250, 250, 250, 255);
 		SDL_RenderClear(renderer);
 
 		//Move robot based on user input commands/auto commands
@@ -71,7 +86,11 @@ int main(int argc, char *argv[]) {
 		robotMotorMove(&robot);
 
 		//Check if robot reaches endpoint. and check sensor values
+#ifdef OLD_MAZE
+		if (checkRobotReachedEnd(&robot, OVERALL_WINDOW_WIDTH, OVERALL_WINDOW_HEIGHT/2+100, 10, 100)){
+#else
 		if (checkRobotReachedEnd(&robot, MAZE_END_X * WALL_WIDTH, MAZE_END_X * WALL_WIDTH, WALL_WIDTH, WALL_WIDTH)){
+#endif
 			end_time = clock();
 			msec = (end_time-start_time) * 1000 / CLOCKS_PER_SEC;
 			robotSuccess(&robot, msec);
@@ -85,9 +104,12 @@ int main(int argc, char *argv[]) {
 		}
 		robotUpdate(&robot);
 		updateAllWalls(head);
+#ifdef OLD_MAZE
+#else
 		smooth_x += (robot.true_x - smooth_x) * .4f;
 		smooth_y += (robot.true_y - smooth_y) * .4f;
-		setOffset(OVERALL_WINDOW_WIDTH / 2 - smooth_x, OVERALL_WINDOW_HEIGHT / 2 - smooth_y);
+		setOffset(OVERALL_WINDOW_WIDTH / 2.f - robot.true_x, OVERALL_WINDOW_HEIGHT / 2.f - robot.true_y);
+#endif
 
 		// Check for user input
 		SDL_RenderPresent(renderer);
@@ -120,7 +142,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		SDL_Delay(20);
+		SDL_Delay(SPEED);
 	}
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);

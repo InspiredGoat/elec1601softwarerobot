@@ -1,7 +1,7 @@
 SOURCES = $(wildcard *.c)
 OBJ = $(addsuffix .o, $(addprefix bin/, $(basename $(SOURCES))));
 INCLUDE = -I include
-CFLAGS = -W -O1
+CFLAGS = -W -O2
 
 all: app
 
@@ -12,12 +12,9 @@ app: $(SOURCES)
 
 clean:
 	rm -f bin/*
-	rm app
+	rm -f app
 
-install:
-	echo "Can't install surry"
-
-try: app
+try: clean app
 	./app
 
 run:
