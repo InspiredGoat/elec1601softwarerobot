@@ -4,6 +4,7 @@
 struct Wall {
     int x,y;
     int width, height;
+    int og_w, og_h;
 };
 
 struct Wall_collection {

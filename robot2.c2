@@ -2,18 +2,15 @@
 
 #include "robot.h"
 #include "renderer.h"
-#include "maze.h"
+/* #include "maze.h" */
+#include "curvemaze.h"
 
 void setup_robot(struct Robot *robot){
 #ifdef OLD_MAZE
-	robot->x = 50;
+	robot->x = OVERALL_WINDOW_WIDTH/2-50;
 	robot->y = OVERALL_WINDOW_HEIGHT-50;
-	robot->true_x = 50;
+	robot->true_x = OVERALL_WINDOW_WIDTH/2-50;
 	robot->true_y = OVERALL_WINDOW_HEIGHT-50;
-	/* robot->x = OVERALL_WINDOW_WIDTH/2-50; */
-	/* robot->y = OVERALL_WINDOW_HEIGHT-50; */
-	/* robot->true_x = OVERALL_WINDOW_WIDTH/2-50; */
-	/* robot->true_y = OVERALL_WINDOW_HEIGHT-50; */
 #else
 	robot->x = MAZE_START_X * WALL_WIDTH + WALL_WIDTH / 2 - ROBOT_WIDTH / 2;
 	robot->y = MAZE_START_Y * WALL_WIDTH;

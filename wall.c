@@ -8,6 +8,8 @@ void wallSetPosition(struct Wall * wall, int x, int y, int width, int height) {
     wall->y = y;
     wall->width = width;
     wall->height = height;
+    wall->og_w = width;
+    wall->og_h = height;
 }
 
 void wallUpdate(struct Wall * wall){
@@ -39,13 +41,18 @@ void insertAndSetFirstWall(struct Wall_collection ** head, int key, int x, int y
 
 void updateAllWalls(struct Wall_collection * head) {
 	struct Wall_collection *ptr = head;
-	/* setColor(	255 * sin(SDL_GetTicks() / 1000.f), */
-	/* 255 * sin(SDL_GetTicks() / 1000.f), */
-	/* 255 * sin(SDL_GetTicks() / 1000.f), 255); */
 
 	//start from the beginning
 	while(ptr != NULL) {
 		setColor(0, 0, 0, 255);
+#ifdef CRAZYWALLS
+		if (ptr->wall.height > ptr->wall.width) {
+			ptr->wall.width = ptr->wall.og_w * (sin(SDL_GetTicks() / 1100.f + ptr->wall.x * ptr->wall.x) + 2) * 2.9f;
+		}
+		else {
+			ptr->wall.height = ptr->wall.og_h * (cos(SDL_GetTicks() / 1100.f + ptr->wall.x * ptr->wall.y) + 2) * 2.9f;
+		}
+#endif
 		wallUpdate(&ptr->wall);
 		ptr = ptr->next;
 	}

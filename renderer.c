@@ -3,7 +3,7 @@
 float x_off = 0;
 float y_off = 0;
 
-#define ZOOM 0.5
+#define ZOOM 1
 SDL_Renderer* r = NULL;
 
 void initRenderer(SDL_Renderer* renderer) {
