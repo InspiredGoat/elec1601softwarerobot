@@ -3,17 +3,14 @@
 #include "robot.h"
 #include "renderer.h"
 #include "maze.h"
+/* #include "curvemaze.h" */
 
 void setup_robot(struct Robot *robot){
 #ifdef OLD_MAZE
-	robot->x = 50;
+	robot->x = OVERALL_WINDOW_WIDTH/2-50;
 	robot->y = OVERALL_WINDOW_HEIGHT-50;
-	robot->true_x = 50;
+	robot->true_x = OVERALL_WINDOW_WIDTH/2-50;
 	robot->true_y = OVERALL_WINDOW_HEIGHT-50;
-	/* robot->x = OVERALL_WINDOW_WIDTH/2-50; */
-	/* robot->y = OVERALL_WINDOW_HEIGHT-50; */
-	/* robot->true_x = OVERALL_WINDOW_WIDTH/2-50; */
-	/* robot->true_y = OVERALL_WINDOW_HEIGHT-50; */
 #else
 	robot->x = MAZE_START_X * WALL_WIDTH + WALL_WIDTH / 2 - ROBOT_WIDTH / 2;
 	robot->y = MAZE_START_Y * WALL_WIDTH;
@@ -279,7 +276,7 @@ void robotAutoMotorMove(struct Robot * robot, int front_left_sensor, int front_r
 #define ROTATIONS_90DEG	6
 #define ROTATIONS_180DEG 12
 	static char left_turn_frames = ROTATIONS_90DEG;
-	static int speed = 1;
+	static int speed = 2;
 
 	if (robot->frames_alive <= 2)
 		robot->direction = UP;

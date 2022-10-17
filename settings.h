@@ -3,8 +3,8 @@
 
 #define OLD_MAZE // changes layout to old maze
 /* #define NOISE_ENABLED // adds random noise to every turn (to simulate real life conditions) */
-#define CRAZY_WALLS
-#define SPEED 40 // defines the length of each step in milliseconds
+/* #define CRAZY_WALLS */
+#define SPEED 120 // defines the length of each step in milliseconds
 
 #define UP 1
 #define DOWN 2
